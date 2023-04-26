@@ -52,7 +52,7 @@ Thumbs.db
 systemp_api/migrations
 
 # SQL Config
-*.cnf
+#*.cnf
 
 # Upload data
 /uploadData
