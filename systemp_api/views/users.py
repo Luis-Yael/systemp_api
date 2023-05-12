@@ -82,9 +82,9 @@ class UsersView(generics.CreateAPIView):
 
             #Create a profile for the user
             profile = Profiles.objects.create(user=user,
-                                              matricula= request.data["id"],
-                                              curp= request.data["curp"],
-                                              rfc= request.data["rfc"],
+                                              matricula= request.data["matricula"],
+                                              curp= request.data["curp"].upper(),
+                                              rfc= request.data["rfc"].upper(),
                                               fecha_nacimiento= request.data["fecha_nacimiento"],
                                               edad= request.data["edad"],
                                               telefono= request.data["telefono"],
@@ -94,3 +94,31 @@ class UsersView(generics.CreateAPIView):
             return Response({"profile_created_id": profile.id }, 201)
 
         return Response(user.errors, status=status.HTTP_400_BAD_REQUEST)
+    #Función para editar un usuario
+class UsersViewEdit(generics.CreateAPIView):
+    permission_classes = (permissions.IsAuthenticated,)
+    def put(self, request, *args, **kwargs):
+        # iduser=request.data["id"]
+        profile = get_object_or_404(Profiles, id=request.data["id"])
+        profile.fecha_nacimiento = request.data["fecha_nacimiento"]
+        profile.curp = request.data["curp"]
+        profile.rfc = request.data["rfc"]
+        profile.edad = request.data["edad"]
+        profile.telefono = request.data["telefono"]
+        profile.ocupacion = request.data["ocupacion"]
+        profile.matricula = request.data["matricula"]
+        profile.save()
+        temp = profile.user
+        temp.first_name = request.data["first_name"]
+        temp.last_name = request.data["last_name"]
+        temp.save()
+        user = ProfilesSerializer(profile, many=False).data
+
+        return Response(user,200)
+    def delete(self, request, *args, **kwargs):
+        profile = get_object_or_404(Profiles, id=request.data["id"])
+        try:
+            profile.user.delete()
+            return Response({"details":"Usuario eliminado"},200)
+        except Exception as e:
+            return Response({"details":"Algo pasó al eliminar"},400)
