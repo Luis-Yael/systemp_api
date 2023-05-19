@@ -116,7 +116,7 @@ class UsersViewEdit(generics.CreateAPIView):
 
         return Response(user,200)
     def delete(self, request, *args, **kwargs):
-        profile = get_object_or_404(Profiles, id=request.data["id"])
+        profile = get_object_or_404(Profiles, id=request.GET.get("id"))
         try:
             profile.user.delete()
             return Response({"details":"Usuario eliminado"},200)
